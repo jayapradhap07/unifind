@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campus Lost & Found Portal | Reunite Campus Belongings</title>
+  <meta name="description" content="A modern, privacy-focused lost and found portal for college students to report, search, and recover missing campus belongings.">
+  <link rel="stylesheet" href="style.css">
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Top Accessibility Bar / Demo Notice -->
+  <div class="top-banner">
+    <div class="container banner-content">
+      <span>
+        <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <strong>Campus Demo Mode:</strong> Data is saved locally in your browser. No private phone numbers or student IDs are publicly shared.
+      </span>
+      <button id="resetDemoDataBtn" class="btn-text-light" title="Reset sample data for presentation">
+        <svg class="icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+          <path d="M3 3v5h5"></path>
+        </svg>
+        Reset Sample Data
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Navigation Header -->
+  <header class="site-header">
+    <div class="container header-container">
+      <a href="#home" class="brand-logo" id="brandLink">
+        <div class="logo-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">UniFind</span>
+          <span class="brand-subtitle">Campus Lost &amp; Found</span>
+        </div>
+      </a>
+
+      <!-- Desktop Nav -->
+      <nav class="main-nav" id="mainNav">
+        <button class="nav-link active" data-view="home">
+          <svg class="icon-nav" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          Dashboard
+        </button>
+        <button class="nav-link" data-view="browse">
+          <svg class="icon-nav" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          Browse Items
+        </button>
+        <button class="nav-link" data-view="my-reports">
+          <svg class="icon-nav" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          My Reports <span class="badge-counter" id="myReportsCountBadge">0</span>
+        </button>
+        <button class="nav-link" data-view="safety">
+          <svg class="icon-nav" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          Safety Guide
+        </button>
+      </nav>
+
+      <!-- Header Action Buttons -->
+      <div class="header-actions">
+        <button class="btn btn-secondary btn-sm" id="headerReportLostBtn">
+          <span class="dot-indicator dot-lost"></span> Report Lost
+        </button>
+        <button class="btn btn-primary btn-sm" id="headerReportFoundBtn">
+          <span class="dot-indicator dot-found"></span> Report Found
+        </button>
+        <!-- Mobile Menu Toggle Button -->
+        <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle navigation menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer Menu -->
+  <div class="mobile-drawer" id="mobileDrawer">
+    <div class="mobile-drawer-links">
+      <button class="mobile-nav-link active" data-view="home">Dashboard</button>
+      <button class="mobile-nav-link" data-view="browse">Browse All Items</button>
+      <button class="mobile-nav-link" data-view="my-reports">My Reports (<span id="mobileMyReportsCount">0</span>)</button>
+      <button class="mobile-nav-link" data-view="report">Report an Item</button>
+      <button class="mobile-nav-link" data-view="safety">Campus Safety &amp; Tips</button>
+    </div>
+  </div>
+
+  <!-- Main App Content Shell -->
+  <main class="main-content" id="appMain">
+
+    <!-- ========================================== -->
+    <!-- SECTION 1: HOME DASHBOARD                  -->
+    <!-- ========================================== -->
+    <section class="view-section active" id="viewHome">
+      <!-- Hero Banner -->
+      <div class="hero-section">
+        <div class="container hero-container">
+          <div class="hero-text-col">
+            <span class="badge-pill">Official University Resource</span>
+            <h1 class="hero-title">Lost Something on Campus?</h1>
+            <p class="hero-subtitle">
+              Don't panic! Whether you misplaced your student ID, laptop charger, or water bottle, UniFind connects campus students and staff to quickly reunite lost belongings.
+            </p>
+
+            <!-- Prominent Dual Action CTAs -->
+            <div class="hero-actions">
+              <button class="btn btn-lost btn-lg shadow-sm" id="heroLostBtn">
+                <svg class="icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                I Lost an Item
+              </button>
+              <button class="btn btn-found btn-lg shadow-sm" id="heroFoundBtn">
+                <svg class="icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                I Found an Item
+              </button>
+            </div>
+
+            <!-- Hero Quick Search -->
+            <div class="hero-search-card">
+              <div class="quick-search-wrapper">
+                <div class="input-with-icon">
+                  <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  <input type="text" id="heroSearchInput" placeholder="Search by item name (e.g. 'MacBook', 'ID card', 'Blue bottle')..." aria-label="Search items">
+                </div>
+                <select id="heroLocationSelect" class="hero-select" aria-label="Filter by campus location">
+                  <option value="">All Campus Locations</option>
+                  <option value="Central Library">Central Library</option>
+                  <option value="Student Center">Student Center</option>
+                  <option value="Science Complex">Science Complex</option>
+                  <option value="Engineering Hall">Engineering Hall</option>
+                  <option value="Main Cafeteria">Main Cafeteria</option>
+                  <option value="Sports Arena">Sports Arena / Gym</option>
+                  <option value="North Quad">North Quad</option>
+                  <option value="Campus Shuttle">Campus Shuttle</option>
+                </select>
+                <button class="btn btn-primary" id="heroSearchBtn">
+                  <span>Search</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Statistics Grid -->
+      <div class="stats-section">
+        <div class="container">
+          <div class="stats-grid">
+            <div class="stat-card" data-filter="all">
+              <div class="stat-icon-wrap stat-icon-blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+              </div>
+              <div class="stat-data">
+                <span class="stat-number" id="statTotalReports">0</span>
+                <span class="stat-label">Total Reports</span>
+              </div>
+            </div>
+
+            <div class="stat-card" data-filter="lost">
+              <div class="stat-icon-wrap stat-icon-rose">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              </div>
+              <div class="stat-data">
+                <span class="stat-number" id="statLostCount">0</span>
+                <span class="stat-label">Items Still Lost</span>
+              </div>
+            </div>
+
+            <div class="stat-card" data-filter="found">
+              <div class="stat-icon-wrap stat-icon-teal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+              </div>
+              <div class="stat-data">
+                <span class="stat-number" id="statFoundCount">0</span>
+                <span class="stat-label">Found Awaiting Claim</span>
+              </div>
+            </div>
+
+            <div class="stat-card" data-filter="returned">
+              <div class="stat-icon-wrap stat-icon-green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7.5" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
+              </div>
+              <div class="stat-data">
+                <span class="stat-number" id="statReturnedCount">0</span>
+                <span class="stat-label">Reunited With Owners</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recently Reported Items Section -->
+      <div class="section-recent container">
+        <div class="section-header-flex">
+          <div>
+            <h2 class="section-title">Recently Reported Items</h2>
+            <p class="section-subtitle">Check newly posted campus items or see if anyone found yours.</p>
+          </div>
+          <button class="btn btn-outline" id="viewAllBrowseBtn">
+            View All Listings
+            <svg class="icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+          </button>
+        </div>
+
+        <div class="items-grid" id="recentItemsGrid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- How It Works Flow -->
+      <div class="how-it-works-section">
+        <div class="container">
+          <div class="text-center mb-4">
+            <span class="badge-pill">Safe &amp; Systematic</span>
+            <h2 class="section-title">How UniFind Works</h2>
+            <p class="section-subtitle">A verified 3-step community workflow built for college student safety.</p>
+          </div>
+
+          <div class="workflow-grid">
+            <div class="step-card">
+              <div class="step-badge">1</div>
+              <div class="step-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              </div>
+              <h3 class="step-title">1. Post a Report</h3>
+              <p class="step-desc">Submit item details, category, date, and location. Upload an optional photo with privacy-safe masking.</p>
+            </div>
+
+            <div class="step-card">
+              <div class="step-badge">2</div>
+              <div class="step-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              </div>
+              <h3 class="step-title">2. Smart Item Matching</h3>
+              <p class="step-desc">Our rule-based engine automatically cross-references categories, keywords, locations, and dates to suggest possible matches.</p>
+            </div>
+
+            <div class="step-card">
+              <div class="step-badge">3</div>
+              <div class="step-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              </div>
+              <h3 class="step-title">3. Safe Handover</h3>
+              <p class="step-desc">Meet at the designated Campus Security Desk or Information Counter to verify ownership and collect your item.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SECTION 2: BROWSE ITEMS                    -->
+    <!-- ========================================== -->
+    <section class="view-section" id="viewBrowse">
+      <div class="container py-4">
+        <!-- Page Title & Header -->
+        <div class="page-title-row">
+          <div>
+            <h1 class="page-main-title">Browse Campus Items</h1>
+            <p class="page-main-subtitle">Search and filter all reported lost, found, and reunited belongings.</p>
+          </div>
+          <button class="btn btn-primary" id="browseNewReportBtn">
+            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Report an Item
+          </button>
+        </div>
+
+        <!-- Filter Card -->
+        <div class="filter-card">
+          <div class="filter-row-primary">
+            <!-- Search Keyword -->
+            <div class="filter-col search-col">
+              <label for="filterSearchInput" class="filter-label">Search keyword</label>
+              <div class="input-with-icon">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="filterSearchInput" placeholder="Name, brand, description..." aria-label="Search filter">
+              </div>
+            </div>
+
+            <!-- Status Filter -->
+            <div class="filter-col">
+              <label for="filterStatusSelect" class="filter-label">Report Status</label>
+              <select id="filterStatusSelect" class="form-select">
+                <option value="all">All Statuses</option>
+                <option value="lost">Lost Only</option>
+                <option value="found">Found Only</option>
+                <option value="returned">Returned</option>
+              </select>
+            </div>
+
+            <!-- Category Filter -->
+            <div class="filter-col">
+              <label for="filterCategorySelect" class="filter-label">Category</label>
+              <select id="filterCategorySelect" class="form-select">
+                <option value="all">All Categories</option>
+                <option value="ID Card">ID Card</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Books">Books &amp; Notes</option>
+                <option value="Bags">Bags &amp; Backpacks</option>
+                <option value="Keys">Keys &amp; Lanyards</option>
+                <option value="Water Bottles">Water Bottles</option>
+                <option value="Accessories">Accessories &amp; Glasses</option>
+                <option value="Other">Other Items</option>
+              </select>
+            </div>
+
+            <!-- Campus Location Filter -->
+            <div class="filter-col">
+              <label for="filterLocationSelect" class="filter-label">Campus Location</label>
+              <select id="filterLocationSelect" class="form-select">
+                <option value="all">All Locations</option>
+                <option value="Central Library">Central Library</option>
+                <option value="Student Center">Student Center</option>
+                <option value="Science Complex">Science Complex</option>
+                <option value="Engineering Hall">Engineering Hall</option>
+                <option value="Main Cafeteria">Main Cafeteria</option>
+                <option value="Sports Arena">Sports Arena / Gym</option>
+                <option value="North Quad">North Quad</option>
+                <option value="Campus Shuttle">Campus Shuttle</option>
+                <option value="Other">Other Campus Area</option>
+              </select>
+            </div>
+
+            <!-- Clear Filters Button -->
+            <div class="filter-col-action">
+              <button class="btn btn-outline btn-block" id="clearFiltersBtn" title="Clear all active filters">
+                <svg class="icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                Clear
+              </button>
+            </div>
+          </div>
+
+          <!-- Active Filter Tags & Sort Bar -->
+          <div class="filter-status-bar">
+            <div class="results-count-text">
+              Showing <strong id="resultsCount">0</strong> items
+              <span id="activeFilterSummary"></span>
+            </div>
+            <div class="sort-selector">
+              <label for="sortBySelect" class="text-muted-sm">Sort by:</label>
+              <select id="sortBySelect" class="form-select-sm">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="alpha">Name (A-Z)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Items Grid Container -->
+        <div class="items-grid" id="browseItemsGrid">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Friendly Empty State Container -->
+        <div class="empty-state hidden" id="browseEmptyState">
+          <div class="empty-state-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              <line x1="8" y1="11" x2="14" y2="11"></line>
+            </svg>
+          </div>
+          <h3 class="empty-state-title">No matching campus items found</h3>
+          <p class="empty-state-text">
+            We couldn't find any listings matching your search criteria. Try broadening your keywords or removing some filters.
+          </p>
+          <div class="empty-state-actions">
+            <button class="btn btn-outline" id="emptyResetFiltersBtn">Reset All Filters</button>
+            <button class="btn btn-primary" id="emptyReportItemBtn">Report New Item</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SECTION 3: REPORT AN ITEM (ADD / EDIT)     -->
+    <!-- ========================================== -->
+    <section class="view-section" id="viewReport">
+      <div class="container py-4 max-w-form">
+        <div class="form-card">
+          <!-- Form Header -->
+          <div class="form-card-header">
+            <div class="d-flex align-center gap-2">
+              <div class="header-icon-pill" id="formHeaderIcon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>
+              </div>
+              <div>
+                <h1 class="form-title" id="formMainTitle">Report a Campus Item</h1>
+                <p class="form-subtitle" id="formSubTitle">Fill in the details below to publish an item report to the campus board.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Privacy & Safety Alert Warning -->
+          <div class="privacy-warning-banner">
+            <div class="banner-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+            </div>
+            <div class="banner-body">
+              <strong>Campus Privacy &amp; Data Safety:</strong>
+              <p>For your security, <em>never</em> upload photos showing complete credit cards, government ID numbers, or device passwords. Student numbers are automatically masked (e.g. STU-****-5821). All data is stored in this browser session.</p>
+            </div>
+          </div>
+
+          <!-- The Report Form -->
+          <form id="itemReportForm" novalidate>
+            <input type="hidden" id="reportEditId" value="">
+
+            <!-- Field: Report Type (Lost vs Found) -->
+            <div class="form-group">
+              <label class="form-label required">What type of report is this?</label>
+              <div class="radio-pill-group">
+                <label class="radio-pill-label">
+                  <input type="radio" name="reportType" value="lost" id="typeRadioLost" checked>
+                  <span class="pill-btn pill-lost">
+                    <span class="dot-indicator dot-lost"></span>
+                    <strong>I Lost an Item</strong>
+                    <small>I am searching for my missing item</small>
+                  </span>
+                </label>
+                <label class="radio-pill-label">
+                  <input type="radio" name="reportType" value="found" id="typeRadioFound">
+                  <span class="pill-btn pill-found">
+                    <span class="dot-indicator dot-found"></span>
+                    <strong>I Found an Item</strong>
+                    <small>I found something belonging to someone else</small>
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Field: Item Name -->
+            <div class="form-group">
+              <label for="itemName" class="form-label required">Item Name / Title</label>
+              <input type="text" id="itemName" class="form-control" placeholder="e.g. Space Gray MacBook Pro 14-inch, Blue Hydro Flask, Student ID" required maxlength="100">
+              <span class="field-error" id="itemNameError">Please provide a descriptive item name.</span>
+            </div>
+
+            <!-- Field: Category & Date Grid -->
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="itemCategory" class="form-label required">Category</label>
+                <select id="itemCategory" class="form-control" required>
+                  <option value="">-- Select Category --</option>
+                  <option value="ID Card">ID Card / Badge</option>
+                  <option value="Electronics">Electronics (Laptop, Phone, Charger, AirPods)</option>
+                  <option value="Books">Books, Notebooks &amp; Notes</option>
+                  <option value="Bags">Bags, Backpacks &amp; Wallets</option>
+                  <option value="Keys">Keys &amp; Lanyards</option>
+                  <option value="Water Bottles">Water Bottles &amp; Tumblers</option>
+                  <option value="Accessories">Accessories, Jewelry &amp; Eyewear</option>
+                  <option value="Other">Other Items</option>
+                </select>
+                <span class="field-error" id="itemCategoryError">Please select an item category.</span>
+              </div>
+
+              <div class="form-group">
+                <label for="itemDate" class="form-label required" id="itemDateLabel">Date Lost</label>
+                <input type="date" id="itemDate" class="form-control" required>
+                <span class="field-error" id="itemDateError">Please enter a valid date (cannot be in future).</span>
+              </div>
+            </div>
+
+            <!-- Field: Location & Specific Area -->
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="itemLocation" class="form-label required">Campus Location</label>
+                <select id="itemLocation" class="form-control" required>
+                  <option value="">-- Select Primary Location --</option>
+                  <option value="Central Library">Central Library</option>
+                  <option value="Student Center">Student Center / Union</option>
+                  <option value="Science Complex">Science Complex / Labs</option>
+                  <option value="Engineering Hall">Engineering Hall</option>
+                  <option value="Main Cafeteria">Main Cafeteria / Food Court</option>
+                  <option value="Sports Arena">Sports Arena / Campus Gym</option>
+                  <option value="North Quad">North Quad / Lawn</option>
+                  <option value="Campus Shuttle">Campus Shuttle Bus</option>
+                  <option value="Other">Other Campus Building</option>
+                </select>
+                <span class="field-error" id="itemLocationError">Please select the campus location.</span>
+              </div>
+
+              <div class="form-group">
+                <label for="itemLocationDetails" class="form-label">Specific Room / Area <span class="text-muted">(Optional)</span></label>
+                <input type="text" id="itemLocationDetails" class="form-control" placeholder="e.g. 2nd Floor study desk #14, near coffee shop" maxlength="120">
+              </div>
+            </div>
+
+            <!-- Field: Description -->
+            <div class="form-group">
+              <label for="itemDescription" class="form-label required">Detailed Description</label>
+              <textarea id="itemDescription" class="form-control" rows="4" placeholder="Describe unique features, color, brand, stickers, scratches, case, or approximate time it went missing..." required maxlength="800"></textarea>
+              <div class="d-flex justify-between mt-1">
+                <span class="field-error" id="itemDescriptionError">Please provide at least 15 characters describing the item.</span>
+                <span class="char-counter" id="descCharCount">0 / 800</span>
+              </div>
+            </div>
+
+            <!-- Field: Image Upload with Preview -->
+            <div class="form-group">
+              <label class="form-label">Item Photo <span class="text-muted">(Optional but highly recommended)</span></label>
+              <div class="image-upload-zone" id="imageDropZone">
+                <input type="file" id="itemImageFile" accept="image/jpeg,image/png,image/webp" class="file-input-hidden">
+                <div class="upload-placeholder" id="uploadPlaceholder">
+                  <svg class="icon-lg text-teal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                    <polyline points="21 15 16 10 5 21"></polyline>
+                  </svg>
+                  <p class="upload-prompt"><strong>Click to browse</strong> or drag &amp; drop an image</p>
+                  <p class="upload-subtext">JPG, PNG, or WEBP (Automatically optimized &amp; resized for local storage)</p>
+                </div>
+                <div class="image-preview-wrapper hidden" id="imagePreviewWrapper">
+                  <img src="" alt="Item Preview" id="imagePreviewImg" class="preview-img">
+                  <button type="button" class="btn-remove-image" id="removeImageBtn" title="Remove selected image">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Field: Contact Method & Safety Option -->
+            <div class="form-group">
+              <label for="contactMethod" class="form-label required">Safe Contact / Recovery Method</label>
+              <select id="contactMethod" class="form-control" required>
+                <option value="desk">Campus Security / Central Info Desk (Recommended - safest for students)</option>
+                <option value="email">Masked Student Email (Contact routed without public display)</option>
+                <option value="phone">Masked Campus Phone / Extension</option>
+              </select>
+              <p class="form-help-text">
+                <svg class="icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                Your contact details are never shown openly in public listings to prevent harassment or spam.
+              </p>
+            </div>
+
+            <!-- Contact detail input (conditioned on contactMethod) -->
+            <div class="form-group" id="contactDetailGroup">
+              <label for="contactDetailInput" class="form-label" id="contactDetailLabel">Contact Detail / Desk Ref</label>
+              <input type="text" id="contactDetailInput" class="form-control" placeholder="e.g. Info Desk Ticket #L-42 or student username" value="Campus Central Info Desk (Desk 1)" required>
+              <span class="field-error" id="contactDetailError">Please provide the contact or desk details.</span>
+            </div>
+
+            <!-- Submit and Cancel Actions -->
+            <div class="form-action-row">
+              <button type="button" class="btn btn-outline" id="formCancelBtn">Cancel</button>
+              <button type="submit" class="btn btn-primary btn-lg" id="formSubmitBtn">
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span id="formSubmitBtnText">Publish Report</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SECTION 4: MY REPORTS                      -->
+    <!-- ========================================== -->
+    <section class="view-section" id="viewMyReports">
+      <div class="container py-4">
+        <div class="page-title-row">
+          <div>
+            <h1 class="page-main-title">My Reported Items</h1>
+            <p class="page-main-subtitle">Manage items you have reported in this browser. You can edit listings or mark them as returned.</p>
+          </div>
+          <button class="btn btn-primary" id="myReportsAddBtn">
+            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Create New Report
+          </button>
+        </div>
+
+        <!-- My Reports Filter Tabs -->
+        <div class="tabs-container">
+          <div class="tabs-list" id="myReportsTabs">
+            <button class="tab-btn active" data-tab="all">All My Reports (<span id="myCountAll">0</span>)</button>
+            <button class="tab-btn" data-tab="lost">Lost (<span id="myCountLost">0</span>)</button>
+            <button class="tab-btn" data-tab="found">Found (<span id="myCountFound">0</span>)</button>
+            <button class="tab-btn" data-tab="returned">Returned (<span id="myCountReturned">0</span>)</button>
+          </div>
+        </div>
+
+        <!-- My Reports Cards Grid -->
+        <div class="items-grid" id="myReportsGrid">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- My Reports Empty State -->
+        <div class="empty-state hidden" id="myReportsEmptyState">
+          <div class="empty-state-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="12" y1="18" x2="12" y2="12"></line>
+              <line x1="9" y1="15" x2="15" y2="15"></line>
+            </svg>
+          </div>
+          <h3 class="empty-state-title" id="myEmptyTitle">No reports found</h3>
+          <p class="empty-state-text" id="myEmptyText">
+            You haven't submitted any lost or found items from this browser yet. When you report an item, it will show up here for easy tracking and editing.
+          </p>
+          <button class="btn btn-primary" id="myEmptyReportBtn">Report an Item Now</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SECTION 5: CAMPUS SAFETY & TIPS            -->
+    <!-- ========================================== -->
+    <section class="view-section" id="viewSafety">
+      <div class="container py-4 max-w-reading">
+        <div class="safety-article-card">
+          <div class="safety-header">
+            <span class="badge-pill">Student Security Guidelines</span>
+            <h1 class="page-main-title">Campus Lost &amp; Found Safety Protocol</h1>
+            <p class="page-main-subtitle">Recommended procedures for safely returning or claiming missing belongings.</p>
+          </div>
+
+          <div class="safety-grid">
+            <div class="safety-card">
+              <div class="safety-card-icon icon-teal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              </div>
+              <h3>1. Verify Ownership First</h3>
+              <p>Before handing over an item, ask the claimant for unique proof of ownership, such as:</p>
+              <ul>
+                <li>Unlocking the device screen or entering password in front of you.</li>
+                <li>Describing specific scratches, stickers, or wallpaper.</li>
+                <li>Showing a matching student ID or syllabus inside a notebook.</li>
+              </ul>
+            </div>
+
+            <div class="safety-card">
+              <div class="safety-card-icon icon-blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              </div>
+              <h3>2. Safe Handover Locations</h3>
+              <p>Never meet in isolated areas or off-campus locations. Always conduct handovers at:</p>
+              <ul>
+                <li>Central Library Main Circulation Desk</li>
+                <li>Campus Security Office (Open 24/7)</li>
+                <li>Student Center Information Center</li>
+              </ul>
+            </div>
+
+            <div class="safety-card">
+              <div class="safety-card-icon icon-amber">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              </div>
+              <h3>3. Sensitive Items (IDs &amp; Cards)</h3>
+              <p>If you find a student ID card, driver's license, or bank card:</p>
+              <ul>
+                <li>Do not publish full numbers or security codes online.</li>
+                <li>Turn in found bank cards directly to the Campus Security Office.</li>
+                <li>The security office will contact the student via official university directory.</li>
+              </ul>
+            </div>
+
+            <div class="safety-card">
+              <div class="safety-card-icon icon-green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </div>
+              <h3>4. Close Your Report</h3>
+              <p>Once your item is recovered, click <strong>"Mark as Returned"</strong> under <em>My Reports</em> or in the item details view. This keeps the campus database accurate and up-to-date.</p>
+            </div>
+          </div>
+
+          <div class="campus-contacts-box">
+            <h3>Key Campus Emergency &amp; Security Contacts</h3>
+            <div class="contact-chips">
+              <div class="contact-chip">
+                <strong>Campus Security Office:</strong> Ext. 4444 / (555) 019-4444
+              </div>
+              <div class="contact-chip">
+                <strong>Library Info Desk:</strong> Ext. 2210 / library-help@campus.edu
+              </div>
+              <div class="contact-chip">
+                <strong>Student Affairs Desk:</strong> Student Union Rm 102
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- ITEM DETAILS MODAL (WITH SMART MATCHING)   -->
+  <!-- ========================================== -->
+  <div class="modal-overlay hidden" id="itemDetailsModal" role="dialog" aria-modal="true" aria-labelledby="modalItemTitle">
+    <div class="modal-card modal-lg">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <div class="d-flex align-center gap-2">
+          <span class="status-badge" id="modalStatusBadge">Lost</span>
+          <span class="category-badge" id="modalCategoryBadge">Electronics</span>
+        </div>
+        <button class="modal-close-btn" id="modalCloseBtn" aria-label="Close details dialog">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <div class="modal-details-grid">
+          <!-- Item Image or Category Illustration -->
+          <div class="modal-image-col">
+            <div class="modal-image-wrap" id="modalImageWrap">
+              <!-- Replaced dynamically with image or SVG placeholder -->
+            </div>
+            <div class="modal-meta-box">
+              <div class="meta-row">
+                <span class="meta-label">
+                  <svg class="icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                  Campus Location:
+                </span>
+                <strong class="meta-value" id="modalLocation">Central Library</strong>
+              </div>
+              <div class="meta-row" id="modalLocationDetailRow">
+                <span class="meta-label">Specific Area:</span>
+                <span class="meta-value text-muted" id="modalLocationDetails">3rd Floor Desk</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">
+                  <svg class="icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                  Date Reported:
+                </span>
+                <strong class="meta-value" id="modalDate">Oct 21, 2026</strong>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Report ID:</span>
+                <span class="meta-value font-mono text-muted" id="modalReportId">#UNF-1024</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item Details Content -->
+          <div class="modal-content-col">
+            <h2 class="modal-item-title" id="modalItemTitle">Silver MacBook Air M2</h2>
+
+            <div class="description-section">
+              <h4 class="subhead">Description &amp; Identifying Details</h4>
+              <p class="modal-description-text" id="modalDescription">Item detailed description...</p>
+            </div>
+
+            <!-- Safe Contact Protocol Section -->
+            <div class="contact-protocol-box">
+              <div class="d-flex align-center gap-2 mb-1">
+                <svg class="icon-sm text-teal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                <h4 class="subhead m-0">Verified Claim &amp; Contact Channel</h4>
+              </div>
+              <p class="protocol-desc" id="modalContactDesc">
+                This item is routed via safe campus protocol. To claim or verify this item, meet at the campus desk or initiate a masked request below.
+              </p>
+              <div class="contact-detail-pill">
+                <span class="pill-label">Authorized Contact:</span>
+                <span class="pill-val" id="modalContactValue">Central Library Info Desk</span>
+              </div>
+            </div>
+
+            <!-- Action Buttons for the Item -->
+            <div class="modal-actions-bar" id="modalActionsBar">
+              <!-- Dynamically populated depending on status and if user is owner -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- UNIQUE FEATURE: SMART ITEM MATCHING SECTION    -->
+        <!-- ============================================== -->
+        <div class="smart-matching-section" id="smartMatchingSection">
+          <div class="matching-header">
+            <div class="matching-title-wrap">
+              <div class="sparkle-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+              </div>
+              <div>
+                <h3 class="matching-title">Possible Matches</h3>
+                <p class="matching-subtitle">
+                  Our rule-based matching engine analyzes category, title keywords, campus location, and report dates to suggest related items.
+                </p>
+              </div>
+            </div>
+            <div class="matching-disclaimer-tag">Rule-Based Suggestion</div>
+          </div>
+
+          <!-- Matching items cards container -->
+          <div class="matching-cards-grid" id="smartMatchesContainer">
+            <!-- Populated by JS -->
+          </div>
+
+          <!-- No matches notice -->
+          <div class="no-matches-notice hidden" id="noMatchesNotice">
+            <svg class="icon-sm text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+            <span>No potential matches found at this time. Check back later as more items get reported.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- CLAIM / SAFE CONTACT MODAL                 -->
+  <!-- ========================================== -->
+  <div class="modal-overlay hidden" id="claimModal" role="dialog" aria-modal="true" aria-labelledby="claimModalTitle">
+    <div class="modal-card modal-md">
+      <div class="modal-header">
+        <h3 class="modal-title" id="claimModalTitle">Inquire About This Item</h3>
+        <button class="modal-close-btn" id="claimModalCloseBtn" aria-label="Close dialog">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="claim-item-summary" id="claimItemSummary">
+          <!-- Summary of item -->
+        </div>
+
+        <div class="privacy-callout">
+          <svg class="icon-sm text-teal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          <div>
+            <strong>Student Privacy Protection:</strong>
+            <p>Your message will be sent through the authorized campus channel or desk without exposing your phone number or sensitive student credentials.</p>
+          </div>
+        </div>
+
+        <form id="claimInquiryForm">
+          <div class="form-group">
+            <label for="claimSenderName" class="form-label required">Your Name</label>
+            <input type="text" id="claimSenderName" class="form-control" placeholder="e.g. Jordan Smith" required>
+          </div>
+          <div class="form-group">
+            <label for="claimSenderContact" class="form-label required">Your Campus Email</label>
+            <input type="email" id="claimSenderContact" class="form-control" placeholder="e.g. j.smith@campus.edu" required>
+          </div>
+          <div class="form-group">
+            <label for="claimMessage" class="form-label required">Ownership Proof / Details</label>
+            <textarea id="claimMessage" class="form-control" rows="3" placeholder="Describe unique identifying marks, serial numbers, screen wallpapers, or when you are available to meet at the Campus Desk..." required></textarea>
+          </div>
+          <div class="d-flex justify-end gap-2 mt-3">
+            <button type="button" class="btn btn-outline" id="claimCancelBtn">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="claimSubmitBtn">Send Safe Inquiry</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- DELETE CONFIRMATION MODAL                  -->
+  <!-- ========================================== -->
+  <div class="modal-overlay hidden" id="deleteConfirmModal" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+    <div class="modal-card modal-sm text-center">
+      <div class="delete-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          <line x1="10" y1="11" x2="10" y2="17"></line>
+          <line x1="14" y1="11" x2="14" y2="17"></line>
+        </svg>
+      </div>
+      <h3 class="modal-title" id="deleteModalTitle">Delete Report?</h3>
+      <p class="modal-subtitle">
+        Are you sure you want to delete <strong id="deleteItemTitle">this item</strong>? This action cannot be undone.
+      </p>
+      <div class="d-flex justify-center gap-2 mt-4">
+        <button class="btn btn-outline" id="cancelDeleteBtn">Cancel</button>
+        <button class="btn btn-danger" id="confirmDeleteBtn">Yes, Delete Report</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- TOAST NOTIFICATION CONTAINER               -->
+  <!-- ========================================== -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-col-brand">
+        <div class="brand-logo footer-logo">
+          <div class="logo-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+          </div>
+          <span class="brand-title">UniFind Campus Portal</span>
+        </div>
+        <p class="footer-desc">
+          A dedicated university community project designed to facilitate the rapid recovery and secure return of student belongings.
+        </p>
+      </div>
+
+      <div class="footer-col-links">
+        <h4 class="footer-heading">Navigation</h4>
+        <ul class="footer-nav">
+          <li><button class="footer-link-btn" data-view="home">Dashboard</button></li>
+          <li><button class="footer-link-btn" data-view="browse">Browse Listings</button></li>
+          <li><button class="footer-link-btn" data-view="report">Report an Item</button></li>
+          <li><button class="footer-link-btn" data-view="my-reports">My Reports</button></li>
+          <li><button class="footer-link-btn" data-view="safety">Campus Safety Tips</button></li>
+        </ul>
+      </div>
+
+      <div class="footer-col-safety">
+        <h4 class="footer-heading">Privacy &amp; Safety Notice</h4>
+        <p class="footer-privacy-text">
+          UniFind stores listing data strictly within your local browser storage for this demonstration. Information is not shared across remote servers or external devices. Always verify ownership before releasing valuable property.
+        </p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="container footer-bottom-container">
+        <span>&copy; 2026 Campus Student Services &bull; Built with Vanilla HTML5, CSS3 &amp; JavaScript</span>
+        <span class="font-mono text-xs">Local Browser Storage Persistence</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Main JavaScript File -->
+  <script src="script.js"></script>
+</body>
+</html>
